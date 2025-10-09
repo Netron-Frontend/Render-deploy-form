@@ -5,6 +5,7 @@ type FormState = {
   first_name: string
   last_name: string
   email: string
+  birth_date: string
 }
 
 type FormErrors = Partial<Record<keyof FormState, string>>
@@ -13,6 +14,7 @@ const initialState: FormState = {
   first_name: '',
   last_name: '',
   email: '',
+  birth_date: '',
 }
 
 export function InterviewForm() {
@@ -33,6 +35,13 @@ export function InterviewForm() {
     if (!data.last_name.trim()) nextErrors.last_name = 'Введите фамилию'
     if (!data.email.trim()) nextErrors.email = 'Введите email'
     else if (!emailRegex.test(data.email.trim())) nextErrors.email = 'Некорректный email'
+    if (!data.birth_date.trim()) nextErrors.birth_date = 'Введите дату рождения'
+    else {
+      const birthDate = new Date(data.birth_date)
+      const today = new Date()
+      if (isNaN(birthDate.getTime())) nextErrors.birth_date = 'Некорректная дата'
+      else if (birthDate > today) nextErrors.birth_date = 'Дата рождения не может быть в будущем'
+    }
     return nextErrors
   }, [emailRegex])
 
@@ -66,6 +75,7 @@ export function InterviewForm() {
               first_name: values.first_name.trim(),
               last_name: values.last_name.trim(),
               email: values.email.trim(),
+              birth_date: values.birth_date,
             },
           ])
 
@@ -128,6 +138,20 @@ export function InterviewForm() {
           required
         />
         {errors.email && <div className="vc-error" role="alert">{errors.email}</div>}
+      </div>
+
+      <div className="vc-field">
+        <label htmlFor="birth_date" className="vc-label">Дата рождения</label>
+        <input
+          id="birth_date"
+          name="birth_date"
+          type="date"
+          className={`vc-input ${errors.birth_date ? 'vc-input-error' : ''}`}
+          value={values.birth_date}
+          onChange={handleChange}
+          required
+        />
+        {errors.birth_date && <div className="vc-error" role="alert">{errors.birth_date}</div>}
       </div>
 
       {submitError && <div className="vc-alert vc-alert-error" role="alert">{submitError}</div>}
